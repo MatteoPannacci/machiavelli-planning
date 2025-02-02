@@ -44,6 +44,9 @@ num(N) :- max_num(M), between(1, M, N).
 /* acceptable seeds for our domain */
 seed(X) :- member(X, [d,c,s,h]).
 
+/* define successors succ (could not be needed)*/
+succ(N1, N2) :- num(N1), num(N2), N2 is N1 + 1.
+
 /* define the cards */
 
 /* associate cards with seeds and numbers */
@@ -90,30 +93,64 @@ causes_false(dismantle_seedpile(R), in_seedpile_of(C,R), in_seedpile_of(C,R)).
 
 
 /* ACTIONS and PRECONDITIONS */
-prim_action(build_numpile).
-poss(build_numpile, ).
+prim_action(build_numpile(C1,C2,C3)) :- card(C1), card(C2), card(C3). % are the arguments needed?
+poss(build_numpile, and(
+  neg(=,C1,C2),
+  neg(=,C1,C3),
+  neg(=,C2,C3),
+  free(C1),
+  free(C2),
+  free(C3),
+  has_number(C1,N),
+  has_number(C2,N),
+  has_number(C3,N)
+)).
 
 prim_action(add_to_numpile(C,R)) :- card(C), card(R).
-/* do with the imply? */
-poss(add_to_numpile, and(
+poss(add_to_numpile(C,R), and(
   free(C),
   in_numpile_of(R,R),
   has_number(C,N),
   has_number(R,N)
 )).
 
+prim_action(dismantle_numpile(R)) :- card(R).
+poss(dismantle_numpile(R), in_numpile_of(R,R)).
 
-prim_action(dismantle_numpile).
-poss(dismantle_numpile, ).
+prim_action(build_seedpile(C1, C2, C3)) :- card(C1), card(C2), card(C3). % not convinced about this notation.
+poss(build_seedpile, and(
+  neg(=,C1,C2),
+  neg(=,C1,C3),
+  neg(=,C2,C3),
+  free(C1),
+  free(C2),
+  free(C3),
+  has_seed(C1,S),
+  has_seed(C2,S),
+  has_seed(C3,S),
+  has_number(C1,N1),
+  has_number(C2,N2),
+  has_number(C3,N3),
+  succ(N1,N2),
+  succ(N2,N3)
+)).
 
-prim_action(build_seedpile).
-poss(build_seedpile, ).
+prim_action(add_to_seedpile(C, R)).
+poss(add_to_seedpile(C, R), and(
+  free(C),
+  in_seedpile_of(R,R),
+  has_seed(C,S),
+  has_seed(R,S),
+  has_number(C,N),
+  has_number(R,N2),
+  card(C2),
+  in_seedpile_of(C2,R),
+  has_number(C2,N2),
+  or (succ(N,N2) , succ(N2,N)) % pretty sure this is syntactically wrong
+)).
 
-prim_action(add_to_seedpile).
-poss(add_to_seedpile, ).
-
-prim_action(dismantle_seedpile).
-poss(dismantle_seedpile, ).
+prim_action(dismantle_seedpile(R)):- card(R).
+poss(dismantle_seedpile(R), in_seedpile_of(R,R)).
 
 
 
