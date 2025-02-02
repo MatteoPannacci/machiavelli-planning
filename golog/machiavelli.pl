@@ -118,7 +118,7 @@ causes_false(dismantle_seedpile(R), in_seedpile_of(C,R), in_seedpile_of(C,R)).
 /* ACTIONS and PRECONDITIONS */
 
 prim_action(build_numpile(C1,C2,C3)) :- card(C1), card(C2), card(C3). % are the arguments needed?
-poss(build_numpile(C1,C2,C3), and(
+poss(build_numpile(C1,C2,C3), (
   neg(=(C1,C2)),
   neg(=(C1,C3)),
   neg(=(C2,C3)),
@@ -132,7 +132,7 @@ poss(build_numpile(C1,C2,C3), and(
 )).
 
 prim_action(add_to_numpile(C,R)) :- card(C), card(R).
-poss(add_to_numpile(C,R), and(
+poss(add_to_numpile(C,R), (
   free(C),
   in_numpile_of(R,R),
   has_number(C,N),
@@ -143,7 +143,7 @@ prim_action(dismantle_numpile(R)) :- card(R).
 poss(dismantle_numpile(R), in_numpile_of(R,R)).
 
 prim_action(build_seedpile(C1, C2, C3)) :- card(C1), card(C2), card(C3). % not convinced about this notation.
-poss(build_seedpile(C1,C2,C3), and(
+poss(build_seedpile(C1,C2,C3), (
   neg(=(C1,C2)),
   neg(=(C1,C3)),
   neg(=(C2,C3)),
@@ -161,7 +161,7 @@ poss(build_seedpile(C1,C2,C3), and(
 )).
 
 prim_action(add_to_seedpile(C,R)) :- card(C), card(R).
-poss(add_to_seedpile(C,R), and(
+poss(add_to_seedpile(C,R), (
   free(C),
   in_seedpile_of(R,R),
   has_seed(C,S),
@@ -170,7 +170,7 @@ poss(add_to_seedpile(C,R), and(
   card(C2),
   in_seedpile_of(C2,R),
   has_number(C2,N2),
-  or(succ(N,N2), succ(N2,N)) % pretty sure this is syntactically wrong
+  (succ(N,N2) ; succ(N2,N))
 )).
 
 prim_action(dismantle_seedpile(R)):- card(R).
@@ -227,42 +227,42 @@ proc(minimize_cost(Max),
 proc(solve_in_max(Max),
   ndet(
 
-    [?(neg(some(c, and(card(c), free(c)))))],
+    [?(neg(some(c, and(card(c), free(c)))))], %base case: if there are no free cards, we are done
 
     pi(c, pi(r, pi(m, [
       ?(and(m is Max - 1, m > 0)),
       add_to_numpile(c,r),
       solve_in_max(m)
-    ]))),
+    ]))), %recursive case: add a card to the pile
 
     pi(c1, pi(c2, pi(c3, pi(m, [
       ?(and(m is Max - 3, m > 0)),
       build_numpile(c1,c2,c3),
-      solve_in_max(m)
+      solve_in_max(m) %recursive case: build a pile
     ])))),
     
     pi(r, pi(m, [
       ?(and(m is Max - 3, m > 0)),
       dismantle_numpile(r),
-      solve_in_max(m)
+      solve_in_max(m) %recursive case: dismantle a pile
     ])),
 
     pi(c, pi(r, pi(m, [
       ?(and(m is Max - 1, m > 0)),
       add_to_seedpile(c,r),
-      solve_in_max(m)
+      solve_in_max(m) %recursive case: add a card to the pile
     ]))),
 
     pi(c1, pi(c2, pi(c3, pi(m, [
       ?(and(m is Max - 3, m > 0)),
       build_seedpile(c1,c2,c3),
-      solve_in_max(m)
+      solve_in_max(m) %recursive case: build a pile
     ])))),
     
     pi(r, pi(m, [
       ?(and(m is Max - 3, m > 0)),
       dismantle_seedpile(r),
-      solve_in_max(m)
+      solve_in_max(m) %recursive case: dismantle a pile
     ]))
 
   )
