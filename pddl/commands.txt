@@ -1,0 +1,8 @@
+# create docker
+sudo docker run  -v /home/indigolog/Desktop/PR/planutils:/computer -it --privileged --rm myplanutils bash
+
+# start planutils
+planutils activate
+
+# use downward
+downward /computer/exercises/machiavelli/domain.pddl /computer/exercises/machiavelli/problem.pddl --search "astar(blind())"

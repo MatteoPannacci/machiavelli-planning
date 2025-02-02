@@ -1,0 +1,10 @@
+# start indigolog
+(on the indigolog folder)
+swipl config.pl ./examples/machiavelli/main.pl
+
+
+# execute function main
+main.
+
+# choose controller
+<num>.
