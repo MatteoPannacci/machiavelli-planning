@@ -79,7 +79,6 @@ has_seed(cKD, d).  has_seed(cKC, c).  has_seed(cKH, h).  has_seed(cKS, s).
 /* FLUENTS and CAUSAL LAWS */
 
 /* free: if a card is not part of any pile */
-/* CAN THEY BE REGROUPED? */
 rel_fluent(free(C)) :- card(C).
 
 /* maybe it's more efficent to put conditions with :- ? */
@@ -214,6 +213,10 @@ initially(in_seedpile_of(C,R), false) :- card(C), card(R), \+ initially(in_seedp
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  Definitions of complex actions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+proc(control(debug), debug).
+
+proc(debug, add_to_numpile(c4D, c4C)).
 
 proc(control(base), search(minimize_cost(0))).
 
