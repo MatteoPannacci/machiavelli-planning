@@ -44,9 +44,16 @@
                 (has_num ?c2 ?n)
                 (has_num ?c3 ?n)
             ))
+            ; can't use more cards with same seed and number ;
+            (not (exists (?s - seed) (or
+                (and (has_seed ?c1 ?s) (has_seed ?c2 ?s))
+                (and (has_seed ?c1 ?s) (has_seed ?c3 ?s))
+                (and (has_seed ?c2 ?s) (has_seed ?c3 ?s))
+            )))
         )
         :effect (and
-            ; should c1 be in pile with itself? ;
+            ; a pile is represented by a 'reference' card ;
+            ; which is part of the pile itself;
             (in_numpile_of ?c1 ?c1)
             (in_numpile_of ?c2 ?c1)
             (in_numpile_of ?c3 ?c1)
@@ -61,7 +68,6 @@
         :parameters (?c - card ?ref - card)
         :precondition (and 
             (free ?c)
-            ; meaning it is in a numpile and it's its reference ;
             (in_numpile_of ?ref ?ref)
             (exists (?n - num) (and
                 (has_num ?ref ?n)
@@ -82,7 +88,7 @@
         )
         :effect (and 
             (forall (?c - card) 
-                (when (in_numpile_of ?c ?ref) ; this include ref itself ;
+                (when (in_numpile_of ?c ?ref) ; c can be ref itself -> to free ref too ;
                     (and 
                         (free ?c)
                         (not (in_numpile_of ?c ?ref))
@@ -94,7 +100,8 @@
     )
 
 
-    ; requires c1 c2 c3 to be ordered ;
+    ; assumption: c1 c2 c3 are given in order ;
+    ; no loss of generality;
     (:action build_seedpile
         :parameters (?c1 - card ?c2 - card ?c3 - card)
         :precondition (and 
@@ -134,14 +141,21 @@
                 (has_seed ?c ?s)
                 (has_seed ?ref ?s)
             ))
-            ; we are assuming only 1 deck ;
-            ; meaning only 1 card with that seed-num combination ;
+
             (exists (?n ?n2 - num ?c2 - card) (and
                 (has_num ?c ?n)
                 (in_seedpile_of ?c2 ?ref)
                 (has_num ?c2 ?n2)
                 (or (succ ?n ?n2) (succ ?n2 ?n))
             ))
+
+            ; to generalize to 'many decks' like french cards ;
+            ; we check if there exist a card with the same number (and seed) ;
+            (not (exists (?n - num ?c2 - card) (and
+                (has_num ?c ?n)
+                (in_seedpile_of ?c2 ?ref)
+                (has_num ?c2 ?n)
+            )))
 
         )
         :effect (and 
