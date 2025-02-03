@@ -27,7 +27,7 @@ num(N) :- max_num(M), between(1, M, N).
 /* acceptable seeds for our domain */
 seed(X) :- member(X, [d,c,s,h]).
 
-/* define successors succ (could not be needed)*/
+/* define successors succ*/
 succ(N1, N2) :- num(N1), num(N2), N2 is N1 + 1.
 
 /* define the cards */
@@ -45,7 +45,7 @@ card(cJD).  card(cJC).  card(cJH).  card(cJS).
 card(cQD).  card(cQC).  card(cQH).  card(cQS).
 card(cKD).  card(cKC).  card(cKH).  card(cKS).
 
-/* define the numbers */
+/* associate numbers to the cards */
 has_number(cAD, 1).  has_number(cAC, 1).  has_number(cAH, 1).  has_number(cAS, 1).
 has_number(c2D, 2).  has_number(c2C, 2).  has_number(c2H, 2).  has_number(c2S, 2).
 has_number(c3D, 3).  has_number(c3C, 3).  has_number(c3H, 3).  has_number(c3S, 3).
@@ -60,7 +60,7 @@ has_number(cJD, 11).  has_number(cJC, 11).  has_number(cJH, 11).  has_number(cJS
 has_number(cQD, 12).  has_number(cQC, 12).  has_number(cQH, 12).  has_number(cQS, 12).
 has_number(cKD, 13).  has_number(cKC, 13).  has_number(cKH, 13).  has_number(cKS, 13).
 
-/* define the seeds */
+/* associate seeds to the cards */
 has_seed(cAD, d).  has_seed(cAC, c).  has_seed(cAH, h).  has_seed(cAS, s).
 has_seed(c2D, d).  has_seed(c2C, c).  has_seed(c2H, h).  has_seed(c2S, s).
 has_seed(c3D, d).  has_seed(c3C, c).  has_seed(c3H, h).  has_seed(c3S, s).
@@ -81,7 +81,6 @@ has_seed(cKD, d).  has_seed(cKC, c).  has_seed(cKH, h).  has_seed(cKS, s).
 /* free: if a card is not part of any pile */
 rel_fluent(free(C)) :- card(C).
 
-/* maybe it's more efficent to put conditions with :- ? */
 causes_true(dismantle_numpile(R), free(C), in_numpile_of(C,R)).
 causes_true(card_appears(C), free(C), true).
 causes_false(build_numpile(C,_,_), free(C), true).
@@ -118,7 +117,7 @@ causes_false(dismantle_seedpile(R), in_seedpile_of(C,R), in_seedpile_of(C,R)).
 
 /* ACTIONS and PRECONDITIONS */
 
-prim_action(build_numpile(C1,C2,C3)) :- card(C1), card(C2), card(C3). % are the arguments needed?
+prim_action(build_numpile(C1,C2,C3)) :- card(C1), card(C2), card(C3).
 poss(build_numpile(C1,C2,C3), (
   \+ (=(C1,C2)),
   \+ (=(C1,C3)),
@@ -129,7 +128,6 @@ poss(build_numpile(C1,C2,C3), (
   has_number(C1,N),
   has_number(C2,N),
   has_number(C3,N)
-  % should we bind N (using "some")?
 )).
 
 
@@ -146,7 +144,7 @@ prim_action(dismantle_numpile(R)) :- card(R).
 poss(dismantle_numpile(R), in_numpile_of(R,R)).
 
 
-prim_action(build_seedpile(C1, C2, C3)) :- card(C1), card(C2), card(C3). % not convinced about this notation.
+prim_action(build_seedpile(C1, C2, C3)) :- card(C1), card(C2), card(C3).
 poss(build_seedpile(C1,C2,C3), (
   \+ (=(C1,C2)),
   \+ (=(C1,C3)),
@@ -266,7 +264,7 @@ proc(is_all_placed,
 ).
 
 /* Dumb controller: choose non-deterministically random actions 
-   until it finds a solution (non-reactive) */
+   until it finds a solution (reactive in the sense that it can re-plan considering the new actions) */
 proc(control(dumb), search(dumb)).
 proc(dumb, [
   star(choose_action),
