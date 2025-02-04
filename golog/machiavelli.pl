@@ -235,11 +235,6 @@ poss(pile_collapses(R), (
 )) :- card(R).
 
 
-/* ABBREVIATIONS */
-/*
-define proc for "not free?"
-*/
-
 /* INITIAL STATE */
 initially(free(C), true) :- card(C), member(C, [c7D, c8D, c9D, c4D, cQC]).
 initially(free(C), false) :- card(C), \+ initially(free(C), true).
@@ -255,43 +250,34 @@ initially(in_seedpile_of(C,R), false) :- card(C), card(R), \+ initially(in_seedp
 %  Definitions of complex actions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% all actions with non-deterministically chosen parameters
 proc(pi_build_numpile,
-  pi(c1, pi(c2, pi(c3,
-    build_numpile(c1,c2,c3)
-  )))
+  pi([c1,c2,c3], build_numpile(c1,c2,c3))
 ).
 
 proc(pi_add_to_numpile,
-  pi(c, pi(r, 
-    add_to_numpile(c,r)
-  ))
+  pi([c,r], add_to_numpile(c,r))
 ).
 
 proc(pi_dismantle_numpile,
-  pi(r, 
-    dismantle_numpile(r)
-  )
+  pi(r, dismantle_numpile(r))
 ).
 
 proc(pi_build_seedpile,
-  pi(c1, pi(c2, pi(c3,
-    build_seedpile(c1,c2,c3)
-  )))
+  pi([c1,c2,c3], build_seedpile(c1,c2,c3))
 ).
 
 proc(pi_add_to_seedpile,
-  pi(c, pi(r, 
-    add_to_seedpile(c,r)
-  ))
+  pi([c,r], add_to_seedpile(c,r))
 ).
 
 proc(pi_dismantle_seedpile,
-  pi(r, 
-    dismantle_seedpile(r)
-  )
+  pi(r, dismantle_seedpile(r))
 ).
 
-proc(choose_action,
+
+% choosing randomly from all 6 actions
+proc(choose_action_full,
   ndet(
     ndet(pi_add_to_numpile, pi_add_to_seedpile),
     ndet(
@@ -301,139 +287,131 @@ proc(choose_action,
   )
 ).
 
-proc(is_all_placed,
-  ?(neg(some(c, and(card(c), free(c)))))
+% check if there is some free card
+proc(some_free,
+  some(c, and(card(c), free(c)))
 ).
 
 
-/* Projection Controller ??? */
-proc(control(projection), check_projection).
-proc(check_projection, []).
-
-
-/* Dumb controller: choose non-deterministically random actions 
+/* full_search controller: choose non-deterministically random actions 
    until it finds a solution (reactive in the sense that it can re-plan considering the new actions) */
-proc(control(dumb), search(dumb)).
-proc(dumb, [
-  star(choose_action),
-  is_all_placed
+proc(control(full_search), search(full_search)).
+proc(full_search, [
+  star(choose_action_full),
+  ?(neg(some_free))
 ]).
+
 
 /* Dismantle and Rebuild controller: dismantle all piles and 
    rebuild everything from scratch */
 
+% dismantle a randomly chosen pile
+proc(dismantle_some_pile, pi(r, ndet(
+  [?(in_numpile_of(r,r)), dismantle_numpile(r)],
+  [?(in_seedpile_of(r,r)), dismantle_seedpile(r)]
+))).
 
+% check if there is a pile
+proc(exists_some_pile, some(r, or(in_numpile_of(r,r), in_seedpile_of(r,r)))).
 
-proc(control(base), search(minimize_cost(0))).
-
-proc(minimize_cost(Max),
-  ndet(solve_in_max(Max), pi(m, [?(m is Max+1), minimize_cost(m)] ))
-).
-
-proc(solve_in_max(Max),
+% choose randomly from 4 actions
+proc(choose_action_create,
   ndet(
-
-    [?(neg(some(c, and(card(c), free(c)))))], %base case: if there are no free cards, we are done
-
-    pi(c, pi(r, pi(m, [
-      ?(and(m is Max - 1, m > 0)),
-      add_to_numpile(c,r),
-      solve_in_max(m)
-    ]))), %recursive case: add a card to the pile
-
-    pi(c1, pi(c2, pi(c3, pi(m, [
-      ?(and(m is Max - 3, m > 0)),
-      build_numpile(c1,c2,c3),
-      solve_in_max(m) %recursive case: build a pile
-    ])))),
-
-    pi(r, pi(m, [
-      ?(and(m is Max - 3, m > 0)),
-      dismantle_numpile(r),
-      solve_in_max(m) %recursive case: dismantle a pile
-    ])),
-
-    pi(c, pi(r, pi(m, [
-      ?(and(m is Max - 1, m > 0)),
-      add_to_seedpile(c,r),
-      solve_in_max(m) %recursive case: add a card to the pile
-    ]))),
-
-    pi(c1, pi(c2, pi(c3, pi(m, [
-      ?(and(m is Max - 3, m > 0)),
-      build_seedpile(c1,c2,c3),
-      solve_in_max(m) %recursive case: build a pile
-    ])))),
-
-    pi(r, pi(m, [
-      ?(and(m is Max - 3, m > 0)),
-      dismantle_seedpile(r),
-      solve_in_max(m) %recursive case: dismantle a pile
-    ]))
-
+    ndet(pi_add_to_numpile, pi_add_to_seedpile),
+    ndet(pi_build_numpile, pi_build_seedpile)
   )
-
 ).
 
-
-/* REACTIVE CONTROLLER:
-
-This is an extension of the elevator that appears in the IJCAI-97 AND
-AIJ-03 papers on ConGolog
-
-It uses exogenous actions for temperature, smoke, and call buttons. It
-also uses prioritized interrupts to handle the exogenous events and the
-call buttons.
-
-The serving of floors is still naive: just serve some pending floor
-
-It is extended to:
-  - track the state of the door
-  - wait at ground floor for more requests
-
-*/
-
-/* --------------------------------------------
-   TO CHANGE!
-  ---------------------------------------------
-
-proc(control(congolog), [prioritized_interrupts(
-        [interrupt(and(too_hot, neg(fan)), toggle),
-         interrupt(and(too_cold, fan), toggle),
-         interrupt(alarm, ring),
-         interrupt(n, pending_floor(n), serve_floor(n)),
-         interrupt(above_floor(1), down),
-         interrupt(neg(door_open), open),
-         interrupt(true, ?(wait_exog_action))])]).
+proc(control(dismantle_and_rebuild), dismantle_and_rebuild).
+proc(dismantle_and_rebuild, [
+  while(
+    exists_some_pile,
+    dismantle_some_pile
+  ),
+  search([
+    star(choose_action_create),
+    ?(neg(some_free))
+  ])
+]).
 
 
-%  REACTIVE + PLANNING CONTROLLERS
-proc(control(indigolog), [prioritized_interrupts(
-        [interrupt(and(too_hot, neg(fan)), toggle),
-         interrupt(and(too_cold, fan), toggle),
-         interrupt(alarm, ring),
-         interrupt(some_pending,
-            [ unset(new_request),
-              gexec(neg(new_request), search(minimize_motion(0), "Searching for plan"))
-              ]),
-         interrupt(above_floor(1), down),
-         interrupt(neg(door_open), open),
-         interrupt(true, ?(wait_exog_action))])]).
+/* Add before search Controller: before start searching 
+   do all 'easy' moves */
+
+proc(can_build_numpile, (
+    \+ (=(C1,C2)),
+    \+ (=(C1,C3)),
+    \+ (=(C2,C3)),
+    free(C1),
+    free(C2),
+    free(C3),
+    has_number(C1,N),
+    has_number(C2,N),
+    has_number(C3,N)
+  )
+).
+
+proc(can_build_seedpile, (
+  \+ (=(C1,C2)),
+  \+ (=(C1,C3)),
+  \+ (=(C2,C3)),
+  free(C1),
+  free(C2),
+  free(C3),
+  has_seed(C1,S),
+  has_seed(C2,S),
+  has_seed(C3,S),
+  has_number(C1,N1),
+  has_number(C2,N2),
+  has_number(C3,N3),
+  succ(N1,N2),
+  succ(N2,N3)
+)).
+
+proc(can_add_to_numpile, (
+  free(C),
+  in_numpile_of(R,R),
+  has_number(C,N),
+  has_number(R,N)
+)).
+
+proc(can_add_to_seedpile, (
+  free(C),
+  in_seedpile_of(R,R),
+  has_seed(C,S),
+  has_seed(R,S),
+  has_number(C,N),
+  card(C2),
+  in_seedpile_of(C2,R),
+  has_number(C2,N2),
+  (succ(N,N2) ; succ(N2,N))
+)).
 
 
-proc(control(indigolog_ends), [prioritized_interrupts(
-          [interrupt(and(too_hot, neg(fan)), toggle),
-           interrupt(and(too_cold, fan), toggle),
-           interrupt(alarm, ring),
-           interrupt(some_pending,
-              [ unset(new_request),
-                gexec(neg(new_request), search(minimize_motion(0), "Searching for plan"))
-                ]),
-           interrupt(above_floor(1), down),
-           interrupt(neg(door_open), open)])
-           ]).
+proc(control(create_before_search), create_before_search).
+proc(create_before_search, [
+  while(
+    can_build_numpile,
+    pi_build_numpile
+  ),
+  while(
+    can_build_seedpile,
+    pi_build_seedpile
+  ),
+  while(
+    can_add_to_numpile,
+    pi_add_to_numpile
+  ),
+  while(
+    can_add_to_seedpile,
+    pi_add_to_seedpile
+  ),
+  search([
+    star(choose_action),
+    ?(neg(some_free))
+  ])
+]).
 
-*/
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
