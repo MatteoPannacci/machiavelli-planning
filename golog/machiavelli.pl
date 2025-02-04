@@ -117,6 +117,7 @@ causes_true(build_numpile(R,_,C), in_numpile_of(C,R), true).
 causes_true(add_to_numpile(C,R), in_numpile_of(C,R), true).
 causes_false(dismantle_numpile(R), in_numpile_of(C,R), in_numpile_of(C,R)).
 
+causes_false(pile_collapses(R), in_numpile_of(C,R), in_numpile_of(C,R)).
 causes_false(card_disappears(C), in_numpile_of(C2,R), 
   and(in_numpile_of(C,R), in_numpile_of(C2,R))
 ).
@@ -131,6 +132,7 @@ causes_true(build_seedpile(R,_,C), in_seedpile_of(C,R), true).
 causes_true(add_to_seedpile(C,R), in_seedpile_of(C,R), true).
 causes_false(dismantle_seedpile(R), in_seedpile_of(C,R), in_seedpile_of(C,R)).
 
+causes_false(pile_collapses(R), in_seedpile_of(C,R), in_seedpile_of(C,R)).
 causes_false(card_disappears(C), in_seedpile_of(C2,R), 
   and(in_seedpile_of(C,R), in_seedpile_of(C2,R))
 ).
