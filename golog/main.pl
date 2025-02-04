@@ -1,13 +1,7 @@
-/*  Elevator Simulator Application MAIN file
+/*  
 
-    @author Sebastian Sardina - ssardina@gmail.com
+	Main file for Machiavelli domain
 
-    This file is the main file for the elevator simulator application. It
-    loads the necessary files and starts the application.
-
-    The application is a simple elevator simulator that is controlled by
-    an INDIGOLOG program. A TCL/TK interface can be used to issue
-    exogenous events/actions.
 */
 
 
@@ -116,6 +110,30 @@ main(C) :-
 :- set_option(log_level, 5).
 :- set_option(log_level, em(1)).
 :- set_option(wait_step, 1).
+
+% Projection Task
+check :- 
+	format("Choose condition to satisfy:\n"),
+	read(COND), nl,
+	format("Write sequence of actions:\n"),
+	read(SEQ), nl,
+	eval(COND, SEQ, true).
+
+
+% Legality Task
+legality_task :-
+	format("Write sequence of actions:\n"),
+	read(SEQ), nl,
+	indigolog(SEQ).
+
+% Projection Task
+projection_task :-
+	format("Choose condition to satisfy:\n"),
+	read(COND), nl,
+	format("Write sequence of actions:\n"),
+	read(SEQ), nl,
+	indigolog([SEQ, ?(COND)]).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % EOF
