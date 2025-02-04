@@ -82,7 +82,6 @@ has_seed(cKD, d).  has_seed(cKC, c).  has_seed(cKH, h).  has_seed(cKS, s).
 rel_fluent(free(C)) :- card(C).
 
 causes_true(dismantle_numpile(R), free(C), in_numpile_of(C,R)).
-causes_true(card_appears(C), free(C), true).
 causes_false(build_numpile(C,_,_), free(C), true).
 causes_false(build_numpile(_,C,_), free(C), true).
 causes_false(build_numpile(_,_,C), free(C), true).
@@ -94,6 +93,20 @@ causes_false(build_seedpile(_,C,_), free(C), true).
 causes_false(build_seedpile(_,_,C), free(C), true).
 causes_false(add_to_seedpile(C,_), free(C), true).
 
+causes_true(card_appears(C), free(C), true).
+causes_true(pile_collapses(R), free(C), or(in_numpile_of(C,R), in_seedpile_of(C,R))).
+causes_true(card_disappears(C), free(C2), 
+  and(
+    or(
+      and(in_numpile_of(C,R), in_numpile_of(C2,R)),
+      and(in_seedpile_of(C,R), in_seedpile_of(C2,R))
+    ),
+    neg(=(C,C2))
+  )
+).
+causes_false(card_disappears(C), free(C), free(C)).
+
+
 /* in_numpile_of: if c is in the pile of cards with 
    the same number having reference ref */
 rel_fluent(in_numpile_of(C,R)) :- card(C), card(R).
@@ -104,6 +117,10 @@ causes_true(build_numpile(R,_,C), in_numpile_of(C,R), true).
 causes_true(add_to_numpile(C,R), in_numpile_of(C,R), true).
 causes_false(dismantle_numpile(R), in_numpile_of(C,R), in_numpile_of(C,R)).
 
+causes_false(card_disappears(C), in_numpile_of(C2,R), 
+  and(in_numpile_of(C,R), in_numpile_of(C2,R))
+).
+
 /* in_seedpile_of: if c is in the pile of cards with 
    the same seed having reference ref */
 rel_fluent(in_seedpile_of(C,R)) :- card(C), card(R).
@@ -113,6 +130,10 @@ causes_true(build_seedpile(R,C,_), in_seedpile_of(C,R), true).
 causes_true(build_seedpile(R,_,C), in_seedpile_of(C,R), true).
 causes_true(add_to_seedpile(C,R), in_seedpile_of(C,R), true).
 causes_false(dismantle_seedpile(R), in_seedpile_of(C,R), in_seedpile_of(C,R)).
+
+causes_false(card_disappears(C), in_seedpile_of(C2,R), 
+  and(in_seedpile_of(C,R), in_seedpile_of(C2,R))
+).
 
 
 /* ACTIONS and PRECONDITIONS */
@@ -185,12 +206,31 @@ poss(dismantle_seedpile(R), in_seedpile_of(R,R)).
 
 /* add to the game (in the hand of the player) a new card */
 exog_action(card_appears(C)) :- card(C).
+
+/* pile collapses */
+exog_action(pile_collapses(R)) :- card(R).
+
+/* remove card from the game */
+exog_action(card_disappears(C)) :- card(C).
+
 prim_action(Act) :- exog_action(Act).
+
 poss(card_appears(C), (
   \+ free(C),
   \+ in_numpile_of(C,R),
   \+ in_seedpile_of(C,R)
 )) :- card(C), card(R).
+
+poss(card_disappears(C), (
+  free(C);
+  in_numpile_of(C,R);
+  in_seedpile_of(C,R)
+)) :- card(C), card(R).
+
+poss(pile_collapses(R), (
+  in_numpile_of(R,R);
+  in_seedpile_of(R,R)
+)) :- card(R).
 
 
 /* ABBREVIATIONS */
@@ -262,6 +302,12 @@ proc(choose_action,
 proc(is_all_placed,
   ?(neg(some(c, and(card(c), free(c)))))
 ).
+
+
+/* Projection Controller ??? */
+proc(control(projection), check_projection).
+proc(check_projection, []).
+
 
 /* Dumb controller: choose non-deterministically random actions 
    until it finds a solution (reactive in the sense that it can re-plan considering the new actions) */
