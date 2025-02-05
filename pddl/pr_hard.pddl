@@ -1,4 +1,4 @@
-(define (problem pr1) (:domain machiavelli)
+(define (problem pr_hard) (:domain machiavelli)
 
     (:objects
         nA n2 n3 n4 n5 n6 n7 n8 n9 n10 nJ nQ nK - num
@@ -166,30 +166,30 @@
 
         ; current board ;
 
-        (in_numpile_of cQSr, CQSr)
-        (in_numpile_of cQHr, CQSr)
-        (in_numpile_of cQDb, CQSr)
-        (in_numpile_of cQCr, CQSr)
+        (in_numpile_of cQSr CQSr)
+        (in_numpile_of cQHr CQSr)
+        (in_numpile_of cQDb CQSr)
+        (in_numpile_of cQCr CQSr)
 
-        (in_seedpile_of cACr, CACr)
-        (in_seedpile_of c2Cb, CACr)
-        (in_seedpile_of c3Cr, CACr)
-        (in_seedpile_of c4Cb, CACr)
+        (in_seedpile_of cACr CACr)
+        (in_seedpile_of c2Cb CACr)
+        (in_seedpile_of c3Cr CACr)
+        (in_seedpile_of c4Cb CACr)
 
-        (in_seedpile_of cAHb, CAHb)
-        (in_seedpile_of c2Hb, CAHb)
-        (in_seedpile_of c3Hr, CAHb)
-        (in_seedpile_of c4Hb, CAHb)
-        (in_seedpile_of c5Hr, CAHb)
-        (in_seedpile_of c6Hb, CAHb)
+        (in_seedpile_of cAHb CAHb)
+        (in_seedpile_of c2Hb CAHb)
+        (in_seedpile_of c3Hr CAHb)
+        (in_seedpile_of c4Hb CAHb)
+        (in_seedpile_of c5Hr CAHb)
+        (in_seedpile_of c6Hb CAHb)
 
-        (in_numpile_of c6Sb, C6Sb)
-        (in_numpile_of c6Db, C6Sb)
-        (in_numpile_of c6Cr, C6Sb)
+        (in_numpile_of c6Sb C6Sb)
+        (in_numpile_of c6Db C6Sb)
+        (in_numpile_of c6Cr C6Sb)
 
-        (in_numpile_of c6Dr, C6Dr)
-        (in_numpile_of c6Cb, C6Dr)
-        (in_numpile_of c6Hr, C6Dr)
+        (in_numpile_of c6Dr C6Dr)
+        (in_numpile_of c6Cb C6Dr)
+        (in_numpile_of c6Hr C6Dr)
 
 
         ; initiale costs ;
