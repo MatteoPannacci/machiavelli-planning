@@ -102,9 +102,9 @@
         (in_numpile_of cQH cQS)
 
         ; initiale costs ;
-        (= (build-cost) 3)
+        (= (build-cost) 5)
         (= (add-cost) 1)
-        (= (dismantle-cost) 3)
+        (= (dismantle-cost) 7)
         (= (total-cost) 0)
 
     )

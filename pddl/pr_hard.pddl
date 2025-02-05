@@ -154,15 +154,48 @@
 
 
         ; current hand ;
+        (free c3Hb)
+        (free c5Cb)
+        (free c7Cr)
+        (free c7Dr)
+        (free c8Db)
+        (free c9Dr)
+        (free c10Hr)
+        (free cJHr)
         
 
         ; current board ;
 
+        (in_numpile_of cQSr, CQSr)
+        (in_numpile_of cQHr, CQSr)
+        (in_numpile_of cQDb, CQSr)
+        (in_numpile_of cQCr, CQSr)
+
+        (in_seedpile_of cACr, CACr)
+        (in_seedpile_of c2Cb, CACr)
+        (in_seedpile_of c3Cr, CACr)
+        (in_seedpile_of c4Cb, CACr)
+
+        (in_seedpile_of cAHb, CAHb)
+        (in_seedpile_of c2Hb, CAHb)
+        (in_seedpile_of c3Hr, CAHb)
+        (in_seedpile_of c4Hb, CAHb)
+        (in_seedpile_of c5Hr, CAHb)
+        (in_seedpile_of c6Hb, CAHb)
+
+        (in_numpile_of c6Sb, C6Sb)
+        (in_numpile_of c6Db, C6Sb)
+        (in_numpile_of c6Cr, C6Sb)
+
+        (in_numpile_of c6Dr, C6Dr)
+        (in_numpile_of c6Cb, C6Dr)
+        (in_numpile_of c6Hr, C6Dr)
+
 
         ; initiale costs ;
-        (= (build-cost) 3)
+        (= (build-cost) 5)
         (= (add-cost) 1)
-        (= (dismantle-cost) 3)
+        (= (dismantle-cost) 7)
         (= (total-cost) 0)
 
     )

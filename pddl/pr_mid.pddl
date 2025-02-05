@@ -97,9 +97,9 @@
         (free c7C)
 
         ; current board ;
-        (in_numpile_of c4C c4C)
-        (in_numpile_of c4H c4C)
-        (in_numpile_of c4S c4C)
+        (in_numpile_of c4D c4D)
+        (in_numpile_of c4H c4D)
+        (in_numpile_of c4S c4D)
         
         (in_numpile_of c6S c6S)
         (in_numpile_of c6H c6S)
@@ -116,9 +116,9 @@
         (in_seedpile_of c4C cAC)
 
         ; initiale costs ;
-        (= (build-cost) 3)
+        (= (build-cost) 5)
         (= (add-cost) 1)
-        (= (dismantle-cost) 3)
+        (= (dismantle-cost) 7)
         (= (total-cost) 0)
 
     )
