@@ -137,6 +137,14 @@ causes_false(card_disappears(C), in_seedpile_of(C2,R),
   and(in_seedpile_of(C,R), in_seedpile_of(C2,R))
 ).
 
+/* some_changes: if some exogenous action has been executed and 
+   it wasn't dealt with yet */
+rel_fluent(some_changes).
+
+causes_true(card_appears(_), some_changes, true).
+causes_true(card_disappears(_), some_changes, true).
+causes_true(pile_collapses(_), some_changes, true).
+
 
 /* ACTIONS and PRECONDITIONS */
 
@@ -244,6 +252,8 @@ initially(in_numpile_of(C,R), true) :- card(C), card(R), =(R,cQS), member(C, [cQ
 initially(in_numpile_of(C,R), false) :- card(C), card(R), \+ initially(in_numpile_of(C,R), true).
 
 initially(in_seedpile_of(C,R), false) :- card(C), card(R), \+ initially(in_seedpile_of(C,R), true).
+
+initially(some_changes, false).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -412,6 +422,13 @@ proc(create_before_search, [
   ])
 ]).
 
+
+proc(control(reactive), [prioritized_interrupts([
+  interrupt(some_free, [
+    unset(some_changes),
+    gexec(neg(some_changes), search(full_search))
+  ])
+])]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
