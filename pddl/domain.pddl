@@ -73,6 +73,11 @@
                 (has_num ?ref ?n)
                 (has_num ?c ?n)
             ))
+            (not (exists (?s - seed ?c2 - card) (and
+                (in_numpile_of ?c2 ?ref)
+                (has_seed ?c ?s)
+                (has_seed ?c2 ?s)
+            )))
         )
         :effect (and 
             (in_numpile_of ?c ?ref)
