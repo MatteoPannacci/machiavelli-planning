@@ -5,4 +5,6 @@ sudo docker run  -v /home/indigolog/Desktop/PR/planutils:/computer -it --privile
 planutils activate
 
 # use downward
-downward /computer/exercises/machiavelli/domain.pddl /computer/exercises/machiavelli/problem.pddl --search "astar(blind())"
+downward /computer/exercises/machiavelli/domain.pddl /computer/exercises/machiavelli/pr_easy.pddl --search "astar(ff())"
+downward /computer/exercises/machiavelli/domain.pddl /computer/exercises/machiavelli/pr_mid.pddl --search "astar(ff())"
+downward /computer/exercises/machiavelli/domain.pddl /computer/exercises/machiavelli/pr_hard.pddl --search "astar(ff())"
