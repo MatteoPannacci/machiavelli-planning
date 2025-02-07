@@ -101,7 +101,7 @@
         (in_numpile_of cQD cQS)
         (in_numpile_of cQH cQS)
 
-        ; initiale costs ;
+        ; initial costs ;
         (= (build-cost) 5)
         (= (add-cost) 1)
         (= (dismantle-cost) 7)
@@ -109,13 +109,14 @@
 
     )
 
-
+    ; goal condition ;
     (:goal (and
         (not (exists (?c - card)
             (free ?c)
         ))
     ))
 
+    ; metric to optimize ;
     (:metric minimize (total-cost))
 
 )
