@@ -111,14 +111,6 @@ main(C) :-
 :- set_option(log_level, em(1)).
 :- set_option(wait_step, 1).
 
-% Projection Task
-check :- 
-	format("Choose condition to satisfy:\n"),
-	read(COND), nl,
-	format("Write sequence of actions:\n"),
-	read(SEQ), nl,
-	eval(COND, SEQ, true).
-
 
 % Legality Task
 legality_task :-
