@@ -112,13 +112,14 @@ main(C) :-
 :- set_option(wait_step, 5).
 
 
-% Legality Task (read from terminal the sequence of actions)
+/* Legality Task (read from terminal the sequence of actions) */
 legality_task :-
 	format("Write sequence of actions:\n"),
 	read(SEQ), nl,
 	indigolog(SEQ).
 
-% Projection Task (read from terminal the condition and the sequence of actions)
+/* Projection Task (read from terminal the condition and the 
+   sequence of actions) */
 projection_task :-
 	format("Choose condition to satisfy:\n"),
 	read(COND), nl,
