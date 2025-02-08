@@ -4,19 +4,24 @@
         nA n2 n3 n4 n5 n6 n7 n8 n9 n10 nJ nQ nK - num
         D C H S - seed
 
+        ; red deck ;
         cADr c2Dr c3Dr c4Dr c5Dr c6Dr c7Dr c8Dr c9Dr c10Dr cJDr cQDr cKDr - card
         cACr c2Cr c3Cr c4Cr c5Cr c6Cr c7Cr c8Cr c9Cr c10Cr cJCr cQCr cKCr - card
         cAHr c2Hr c3Hr c4Hr c5Hr c6Hr c7Hr c8Hr c9Hr c10Hr cJHr cQHr cKHr - card
         cASr c2Sr c3Sr c4Sr c5Sr c6Sr c7Sr c8Sr c9Sr c10Sr cJSr cQSr cKSr - card
 
+        ; blue deck ;
         cADb c2Db c3Db c4Db c5Db c6Db c7Db c8Db c9Db c10Db cJDb cQDb cKDb - card
         cACb c2Cb c3Cb c4Cb c5Cb c6Cb c7Cb c8Cb c9Cb c10Cb cJCb cQCb cKCb - card
         cAHb c2Hb c3Hb c4Hb c5Hb c6Hb c7Hb c8Hb c9Hb c10Hb cJHb cQHb cKHb - card
         cASb c2Sb c3Sb c4Sb c5Sb c6Sb c7Sb c8Sb c9Sb c10Sb cJSb cQSb cKSb - card
     )
 
+
     (:init
         
+        ; STATIC PREDICATES (independent from the initial situation) ;
+
         ; number ordering ;
         (succ nA n2)
         (succ n2 n3)
@@ -153,6 +158,8 @@
         (has_num cKSb nK) (has_seed cKSb S)
 
 
+        ; INITIAL STATE ;
+
         ; current hand ;
         (free c3Hb)
         (free c5Cb)
@@ -162,10 +169,8 @@
         (free c9Dr)
         (free c10Hr)
         (free cJHr)
-        
 
         ; current board ;
-
         (in_numpile_of cQSr CQSr)
         (in_numpile_of cQHr CQSr)
         (in_numpile_of cQDb CQSr)
@@ -201,12 +206,15 @@
     )
 
 
+    ; goal condition ;
     (:goal (and
         (not (exists (?c - card)
             (free ?c)
         ))
     ))
 
+
+    ; metric to optimize ;
     (:metric minimize (total-cost))
 
 )

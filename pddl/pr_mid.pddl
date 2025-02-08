@@ -9,8 +9,11 @@
         cAS c2S c3S c4S c5S c6S c7S c8S c9S c10S cJS cQS cKS - card
     )
 
+
     (:init
         
+        ; STATIC PREDICATES (independent from the initial situation) ;
+
         ; number ordering ;
         (succ nA n2)
         (succ n2 n3)
@@ -86,6 +89,9 @@
         (has_num cQS nQ) (has_seed cQS S)
         (has_num cKS nK) (has_seed cKS S)
 
+
+        ; INITIAL STATE ;
+
         ; current hand ;
         (free c7D)
         (free c8D)
@@ -124,12 +130,15 @@
     )
 
 
+    ; goal condition ;
     (:goal (and
         (not (exists (?c - card)
             (free ?c)
         ))
     ))
 
+
+    ; metric to optimize ;
     (:metric minimize (total-cost))
 
 )

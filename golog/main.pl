@@ -109,16 +109,16 @@ main(C) :-
 
 :- set_option(log_level, 5).
 :- set_option(log_level, em(1)).
-:- set_option(wait_step, 1).
+:- set_option(wait_step, 5).
 
 
-% Legality Task
+% Legality Task (read from terminal the sequence of actions)
 legality_task :-
 	format("Write sequence of actions:\n"),
 	read(SEQ), nl,
 	indigolog(SEQ).
 
-% Projection Task
+% Projection Task (read from terminal the condition and the sequence of actions)
 projection_task :-
 	format("Choose condition to satisfy:\n"),
 	read(COND), nl,

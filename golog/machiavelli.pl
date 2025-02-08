@@ -18,16 +18,16 @@
 cache(_) :- fail.
 
 
-/* DOMAINS-SORTS AVAILABLE */
+/* PREDICATES */
 
-/* acceptable numbers for our domain */
+/* range of numbers for our domain */
 max_num(13).
 num(N) :- max_num(M), between(1, M, N).
 
-/* acceptable seeds for our domain */
+/* seeds for our domain */
 seed(X) :- member(X, [d,c,s,h]).
 
-/* define successors succ*/
+/* define number succession */
 succ(N1, N2) :- num(N1), num(N2), N2 is N1 + 1.
 
 /* define the cards */
@@ -78,21 +78,24 @@ has_seed(cKD, d).  has_seed(cKC, c).  has_seed(cKH, h).  has_seed(cKS, s).
 
 /* FLUENTS and CAUSAL LAWS */
 
-/* free: if a card is not part of any pile */
+/* free: if a card is not part of any pile (it's in the hand) */
 rel_fluent(free(C)) :- card(C).
 
+% causal laws for numpile actions
 causes_true(dismantle_numpile(R), free(C), in_numpile_of(C,R)).
 causes_false(build_numpile(C,_,_), free(C), true).
 causes_false(build_numpile(_,C,_), free(C), true).
 causes_false(build_numpile(_,_,C), free(C), true).
 causes_false(add_to_numpile(C,_), free(C), true).
 
+% causal laws for seedpile actions
 causes_true(dismantle_seedpile(R), free(C), in_seedpile_of(C,R)).
 causes_false(build_seedpile(C,_,_), free(C), true).
 causes_false(build_seedpile(_,C,_), free(C), true).
 causes_false(build_seedpile(_,_,C), free(C), true).
 causes_false(add_to_seedpile(C,_), free(C), true).
 
+% causal laws for exogenous actions
 causes_true(card_appears(C), free(C), true).
 causes_true(pile_collapses(R), free(C), or(in_numpile_of(C,R), in_seedpile_of(C,R))).
 causes_true(card_disappears(C), free(C2), 
@@ -111,12 +114,14 @@ causes_false(card_disappears(C), free(C), free(C)).
    the same number having reference ref */
 rel_fluent(in_numpile_of(C,R)) :- card(C), card(R).
 
+% causal laws for nunmpile actions
 causes_true(build_numpile(R,_,_), in_numpile_of(R,R), true).
 causes_true(build_numpile(R,C,_), in_numpile_of(C,R), true).
 causes_true(build_numpile(R,_,C), in_numpile_of(C,R), true).
 causes_true(add_to_numpile(C,R), in_numpile_of(C,R), true).
 causes_false(dismantle_numpile(R), in_numpile_of(C,R), in_numpile_of(C,R)).
 
+% causal laws for exogenous actions
 causes_false(pile_collapses(R), in_numpile_of(C,R), in_numpile_of(C,R)).
 causes_false(card_disappears(C), in_numpile_of(C2,R), 
   and(in_numpile_of(C,R), in_numpile_of(C2,R))
@@ -126,12 +131,14 @@ causes_false(card_disappears(C), in_numpile_of(C2,R),
    the same seed having reference ref */
 rel_fluent(in_seedpile_of(C,R)) :- card(C), card(R).
 
+% causal laws for seedpile actions
 causes_true(build_seedpile(R,_,_), in_seedpile_of(R,R), true).
 causes_true(build_seedpile(R,C,_), in_seedpile_of(C,R), true).
 causes_true(build_seedpile(R,_,C), in_seedpile_of(C,R), true).
 causes_true(add_to_seedpile(C,R), in_seedpile_of(C,R), true).
 causes_false(dismantle_seedpile(R), in_seedpile_of(C,R), in_seedpile_of(C,R)).
 
+% causal laws for exogenous actions
 causes_false(pile_collapses(R), in_seedpile_of(C,R), in_seedpile_of(C,R)).
 causes_false(card_disappears(C), in_seedpile_of(C2,R), 
   and(in_seedpile_of(C,R), in_seedpile_of(C2,R))
@@ -201,7 +208,6 @@ poss(add_to_seedpile(C,R), (
   has_seed(C,S),
   has_seed(R,S),
   has_number(C,N),
-  card(C2),
   in_seedpile_of(C2,R),
   has_number(C2,N2),
   (succ(N,N2) ; succ(N2,N))
@@ -286,7 +292,7 @@ proc(pi_dismantle_seedpile,
 ).
 
 
-% choosing randomly from all 6 actions
+% choosing randomly between all 6 actions
 proc(choose_action_full,
   ndet(
     ndet(pi_add_to_numpile, pi_add_to_seedpile),
@@ -304,16 +310,13 @@ proc(some_free,
 
 
 /* full_search controller: choose non-deterministically random actions 
-   until it finds a solution (reactive in the sense that it can re-plan considering the new actions) */
+   until it finds a solution */
 proc(control(full_search), search(full_search)).
 proc(full_search, [
   star(choose_action_full),
   ?(neg(some_free))
 ]).
 
-
-/* Dismantle and Rebuild controller: dismantle all piles and 
-   rebuild everything from scratch */
 
 % dismantle a randomly chosen pile
 proc(dismantle_some_pile, pi(r, ndet(
@@ -324,7 +327,7 @@ proc(dismantle_some_pile, pi(r, ndet(
 % check if there is a pile
 proc(exists_some_pile, some(r, or(in_numpile_of(r,r), in_seedpile_of(r,r)))).
 
-% choose randomly from 4 actions
+% choose randomly between 4 actions (adds and builds)
 proc(choose_action_create,
   ndet(
     ndet(pi_add_to_numpile, pi_add_to_seedpile),
@@ -332,6 +335,8 @@ proc(choose_action_create,
   )
 ).
 
+/* Dismantle and Rebuild controller: dismantle all piles and 
+   rebuild everything from scratch */
 proc(control(dismantle_and_rebuild), dismantle_and_rebuild).
 proc(dismantle_and_rebuild, [
   while(
@@ -345,87 +350,12 @@ proc(dismantle_and_rebuild, [
 ]).
 
 
-/* Add before search Controller: before start searching 
-   do all 'easy' moves */
-
-proc(can_build_numpile, (
-    \+ (=(C1,C2)),
-    \+ (=(C1,C3)),
-    \+ (=(C2,C3)),
-    free(C1),
-    free(C2),
-    free(C3),
-    has_number(C1,N),
-    has_number(C2,N),
-    has_number(C3,N)
-  )
-).
-
-proc(can_build_seedpile, (
-  \+ (=(C1,C2)),
-  \+ (=(C1,C3)),
-  \+ (=(C2,C3)),
-  free(C1),
-  free(C2),
-  free(C3),
-  has_seed(C1,S),
-  has_seed(C2,S),
-  has_seed(C3,S),
-  has_number(C1,N1),
-  has_number(C2,N2),
-  has_number(C3,N3),
-  succ(N1,N2),
-  succ(N2,N3)
-)).
-
-proc(can_add_to_numpile, (
-  free(C),
-  in_numpile_of(R,R),
-  has_number(C,N),
-  has_number(R,N)
-)).
-
-proc(can_add_to_seedpile, (
-  free(C),
-  in_seedpile_of(R,R),
-  has_seed(C,S),
-  has_seed(R,S),
-  has_number(C,N),
-  card(C2),
-  in_seedpile_of(C2,R),
-  has_number(C2,N2),
-  (succ(N,N2) ; succ(N2,N))
-)).
-
-
-proc(control(create_before_search), create_before_search).
-proc(create_before_search, [
-  while(
-    can_build_numpile,
-    pi_build_numpile
-  ),
-  while(
-    can_build_seedpile,
-    pi_build_seedpile
-  ),
-  while(
-    can_add_to_numpile,
-    pi_add_to_numpile
-  ),
-  while(
-    can_add_to_seedpile,
-    pi_add_to_seedpile
-  ),
-  search([
-    star(choose_action),
-    ?(neg(some_free))
-  ])
-]).
-
-
+/* Reactive controller: when it receives an exogenous action, interrupt the 
+   current search (or execution) and restarts. Terminates when it reaches
+   the goal. */
 proc(control(reactive), [prioritized_interrupts([
   interrupt(some_free, [
-    unset(some_changes),
+    if(some_changes, unset(some_changes), []),
     gexec(neg(some_changes), search(full_search))
   ])
 ])]).
