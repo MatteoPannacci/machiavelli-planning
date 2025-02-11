@@ -28,6 +28,8 @@
     )
 
 
+    ; we can think of a succession for the seeds in order to have only one ;
+    ; possible action that builds a certain pile (decreasing branching factor) ;
     (:action build_numpile
         :parameters (?c1 - card ?c2 - card ?c3 - card)
         :precondition (and
