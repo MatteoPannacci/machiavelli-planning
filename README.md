@@ -5,7 +5,7 @@ Project developed for the course of "Planning and Reasoning" during the MSc in A
 
 ## Summary
 
-Implementation in PDDL and IndiGolog of a task from the [italian card game Machiavelli](https://en.wikipedia.org/wiki/Machiavelli_(Italian_card_game)).
+Implementation in PDDL and IndiGolog of a planning task from the [italian card game Machiavelli](https://en.wikipedia.org/wiki/Machiavelli_(Italian_card_game)).
 
 We take into consideration a single turn of a player during the course of the game. The goal is to check whether it’s possible for the player to win from the current configuration (board state and player's hand) and, in the positive case, to find a sequence of legal actions that do so.
 
